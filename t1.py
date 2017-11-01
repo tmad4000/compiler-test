@@ -1,6 +1,10 @@
 
 import re
 S= """ 
+    (times 2 3)
+    (plus 2 3)
+    (setq x 4)
+    (for (setq i 0) (lt i 10) (setqi plus i 1)))
 
     static int main(int argc, char argv) {
         int i = 1;
@@ -14,8 +18,10 @@ def do(s):
 
     state="START"
 
+    parseTree={f:"START", args:S}
+
     stateGraph={
-        "START": ["MODIFIER", ";","RETURN_TYPE"],
+        "START": ["EXPRESSION","MODIFIER", ";","RETURN_TYPE"],
         "MODIFIER": ["RETURN_TYPE"],
         "RETURN_TYPE": None
     }
@@ -23,11 +29,38 @@ def do(s):
     keywords={"static":"MODIFIER", "int":"RETURN_TYPE", "void":"RETURN_TYPE"}
 
     for i,token in enumerate(splitInput):
-        nextState=stateGraph[state]
+
+        if state=="START":
+            if token=="(":
+                parseTree=[]
+                nextState="FUNC"
+            else:
+                print "ERR"
+
+        elif state=="FUNC":
+            if token in ["times","plus"]:
+                addFunc(token)
+                nextState="ARG"
+            else:
+                print "ERR"
+
+        elif state=="ARG":
+            if token=="times":
+                nextState="ARG"
+            elif token=="plus":
+                nextState="ARG"
+            else:
+                print "ERR"
+
+        if token=="(":
+            state="("
+        
+        
+        possibleNextStates=stateGraph[state]
         
         if(token in keywords):
             newState=keywords[token]
-            if nextState != None and not newState in nextState:
+            if possibleNextStates != None and not newState in possibleNextStates:
                 print "Err", state, newState
 
             splitInput[i]=(token, newState)
