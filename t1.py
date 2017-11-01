@@ -1,6 +1,7 @@
 
 import re
 S= """ 
+
     static int main(int argc, char argv) {
         int i = 1;
         return 2*i;
@@ -21,14 +22,15 @@ def do(s):
 
     keywords={"static":"MODIFIER", "int":"RETURN_TYPE", "void":"RETURN_TYPE"}
 
-    for i,k in enumerate(splitInput):
-        if(k in keywords):
-
-            newState=keywords[k]
-            if stateGraph[state] != None and not newState in stateGraph[state]:
+    for i,token in enumerate(splitInput):
+        nextState=stateGraph[state]
+        
+        if(token in keywords):
+            newState=keywords[token]
+            if nextState != None and not newState in nextState:
                 print "Err", state, newState
 
-            splitInput[i]=(k, newState)
+            splitInput[i]=(token, newState)
             state=newState
             
 
