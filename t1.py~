@@ -1,0 +1,13 @@
+
+import re
+S= """ int main(int argc, char **argv) {
+int i = 1;
+return 2*i;
+}"""
+
+def do(s):
+    x = re.split("[ ;,(){}]",s)
+    print(x)
+
+
+do(S)
