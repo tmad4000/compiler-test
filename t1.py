@@ -2,73 +2,80 @@
 import re
 S= """ 
     (times 2 3)
-    (plus 2 3)
-    (setq x 4)
-    (for (setq i 0) (lt i 10) (setqi plus i 1)))
-
-    static int main(int argc, char argv) {
-        int i = 1;
-        return 2*i;
-    }
 """
 
-def do(s):
-    splitInput = re.split(r'(\W)',s)
-    splitInput = [m for m in splitInput if (m!= "" and m!=" " and m!="\n")]
+    # (plus 2 3)
+    # (setq x 4)
+    # (for (setq i 0) (lt i 10) (setqi plus i 1)))
 
-    state="START"
+    # static int main(int argc, char argv) {
+    #     int i = 1;
+    #     return 2*i;
+    # }
 
-    parseTree={f:"START", args:S}
+def isPrim(expr):
+    return re.match(r"[0-9]+$", expr) != None
 
-    stateGraph={
-        "START": ["EXPRESSION","MODIFIER", ";","RETURN_TYPE"],
-        "MODIFIER": ["RETURN_TYPE"],
-        "RETURN_TYPE": None
-    }
-
-    keywords={"static":"MODIFIER", "int":"RETURN_TYPE", "void":"RETURN_TYPE"}
-
-    for i,token in enumerate(splitInput):
-
-        if state=="START":
-            if token=="(":
-                parseTree=[]
-                nextState="FUNC"
-            else:
-                print "ERR"
-
-        elif state=="FUNC":
-            if token in ["times","plus"]:
-                addFunc(token)
-                nextState="ARG"
-            else:
-                print "ERR"
-
-        elif state=="ARG":
-            if token=="times":
-                nextState="ARG"
-            elif token=="plus":
-                nextState="ARG"
-            else:
-                print "ERR"
-
-        if token=="(":
-            state="("
-        
-        
-        possibleNextStates=stateGraph[state]
-        
-        if(token in keywords):
-            newState=keywords[token]
-            if possibleNextStates != None and not newState in possibleNextStates:
-                print "Err", state, newState
-
-            splitInput[i]=(token, newState)
-            state=newState
-            
-
-    print(splitInput)
+# def parseRec(expr):
+#     if(isPrim(expr)):
+#         return expr
+#     else:
+#         return (func, map(lamba a: parseRec(a), args))
 
 
+# def do(s):
+#     splitInput = re.split(r'(\W)',s)
+#     splitInput = [m for m in splitInput if (m!= "" and m!=" " and m!="\n")]
 
-do(S)
+#     state="START"
+
+#     parseTree={f:"START", args:S}
+
+#     # stateGraph={
+#     #     "START": ["EXPRESSION","MODIFIER", ";","RETURN_TYPE"],
+#     #     "MODIFIER": ["RETURN_TYPE"],
+#     #     "RETURN_TYPE": None
+#     # }
+
+#     # keywords={"static":"MODIFIER", "int":"RETURN_TYPE", "void":"RETURN_TYPE"}
+
+#     def addFunc(f):
+#         parseTreeCurrNode.func=f
+
+#     def addArg(a):
+#         parseTreeCurrNode.args.append(a)
+
+
+#     for i,token in enumerate(splitInput):
+
+#         if state=="START":
+#             if token=="(":
+#                 parseTree=[]
+#                 nextState="FUNC"
+#             else:
+#                 print "ERR", state
+
+#         elif state=="FUNC":
+#             if token in ["times","plus"]:
+#                 addFunc(token)
+#                 nextState="ARG"
+#             else:
+#                 print "ERR", state
+
+#         elif state=="ARG":
+#             if token==")":
+#                 nextState="DONE"
+#             else:
+#                 addArg(token)
+#                 nextState="ARG"
+#         elif state=="DONE":
+#             pass
+#         else:
+#             print "ERR", state
+
+
+#     print(splitInput)
+
+
+
+# do(S)
