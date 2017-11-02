@@ -7,7 +7,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
 
     <script>
-
         $(function () {
             document.getElementById('go').focus()
             compile()
@@ -85,28 +84,44 @@
         }
 
         function runListTree(listTree) {
-            let fns = {
-                "add": (a, b) => { return parseFloat(a) + parseFloat(b) },
-                "mult": (a, b) => { return parseFloat(a) * parseFloat(b) },
-                "sub": (a, b) => { return parseFloat(a) - parseFloat(b) },
-                "div": (a, b) => { return parseFloat(a) / parseFloat(b) },
-                "concat": (a, b) => {
-                    if (!isStr(a) || !isStr(b)) {
-                        console.error("concat args must be quoted strs", a, b)
+
+            //if atom
+            if (typeof listTree !== "object") {
+                return listTree
+            }
+            //if list
+            else {
+
+                let fns = {
+                    "add": (a, b) => { return parseFloat(a) + parseFloat(b) },
+                    "mult": (a, b) => { return parseFloat(a) * parseFloat(b) },
+                    "sub": (a, b) => { return parseFloat(a) - parseFloat(b) },
+                    "div": (a, b) => { return parseFloat(a) / parseFloat(b) },
+                    "concat": (a, b) => {
+                        if (!isStr(a) || !isStr(b)) {
+                            console.error("concat args must be quoted strs", a, b)
+                        }
+                        a = a.slice(1, -1)
+                        b = b.slice(1, -1)
+
+                        return '"' + a.concat(b) + '"'
                     }
-                    a=a.slice(1,-1)
-                    b=b.slice(1,-1)
-
-                    return '"'+a.concat(b)+'"'
                 }
+
+                let head = listTree.list[0]
+                let tail = listTree.list.slice(1)
+
+                if (head in fns) {
+                    return fns[head](...(tail.map((e) => runListTree(e))))
+                }
+                else {
+                    console.error("invalid func", head)
+                    return
+                }
+
+
             }
 
-            let head = listTree.list[0]
-            let tail = listTree.list.slice(1)
-
-            if (head in fns) {
-                return fns[head](...tail)
-            }
         }
 
         function listTreeToString(listTree) {
@@ -140,8 +155,7 @@
     (add 2 3) 
 3) -->
     <textarea rows="20" cols="100" id="prog">
-add 3 4
-
+mult (add 3 2) 5
     </textarea>
     <button id="go" onClick="compile()">Go</button>
 
