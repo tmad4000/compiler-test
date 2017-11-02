@@ -6,25 +6,26 @@
             console.log(document.getElementById("prog").value)
             let s = document.getElementById("prog").value
             let splitS = s.split(/\b/);
-            splitS=splitS.filter((s)=>s.trim()!="")
+            splitS = splitS.map((s) => s.trim())
+            splitS = splitS.filter((s) => s.trim())
+    
+                let mainList = { parent: null, list: [] }
+                let currList = mainList
+    
+                for (let i = 0; i < splitS.length; i++) {
+                let t = splitS[i]
 
-            let mainList={parent:null,  list:[]}
-            let currList=mainList
 
-            for(let i=0;i<splitS.length;i++) {
-                let t=splitS[i]
-
-                
-                if(t=="(") {
-                    let newList={parent:currList, list:[]}
+                if (t == "(") {
+                    let newList = { parent: currList, list: [] }
                     currList.list.push(newList)
-                    currList=newList
+                    currList = newList
                 }
-                else if(t==")") {
-                    if(!currList.parent)
+                else if (t == ")") {
+                    if (!currList.parent)
                         return 0;
 
-                    currList=currList.parent
+                    currList = currList.parent
                 }
                 else {
                     currList.list.push(t)
@@ -32,30 +33,42 @@
             }
 
             console.log(splitS)
-            console.log(listTreeToString(mainList))
+            console.log(listTreeToStringTuples(mainList))
+            // console.log(listTreeJustLists(mainList))
         }
 
         function listTreeToString(listTree) {
-            return "(" + listTree.list.map((li)=>typeof li !=="object" ? li : listTreeToString(li)).join(" ") + ")"
-        } 
+            return "(" + listTree.list.map((li) => typeof li !== "object" ? li : listTreeToString(li)).join(" ") + ")"
+        }
+
+        function listTreeToStringTuples(listTree) {
+            return "(" + listTree.list.map((li) => typeof li !== "object" ? li : listTreeToStringTuples(li)).join(", ") + ")"
+        }
+
+        function listTreeJustLists(listTree) {
+            return listTree.list.map((li) => typeof li !== "object" ? li : listTreeJustLists(li))
+        }
 
         function parseList(l) {// if this adam token, then return and else if it is list, then retrun [car(exp),parselistofcdr(expr)]
 
         }
-
     </script>
 </head>
 
 <body>
 
-    <textarea id="prog">(mult 2 3)</textarea>
+    <textarea rows="20" cols="100" id="prog">
+(mult 
+    (add 2 3) 
+3)
+    
+        </textarea>
     <button id="go" onClick="compile()">Go</button>
 
     <script>
-        document.getElementById('go').focus()
-        compile()
+            document.getElementById('go').focus()
+            compile()
     </script>
 </body>
 
 </html>
-
