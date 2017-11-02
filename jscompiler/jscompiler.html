@@ -1,0 +1,61 @@
+<html>
+
+<head>
+    <script>
+        function compile() {
+            console.log(document.getElementById("prog").value)
+            let s = document.getElementById("prog").value
+            let splitS = s.split(/\b/);
+            splitS=splitS.filter((s)=>s.trim()!="")
+
+            let mainList={parent:null,  list:[]}
+            let currList=mainList
+
+            for(let i=0;i<splitS.length;i++) {
+                let t=splitS[i]
+
+                
+                if(t=="(") {
+                    let newList={parent:currList, list:[]}
+                    currList.list.push(newList)
+                    currList=newList
+                }
+                else if(t==")") {
+                    if(!currList.parent)
+                        return 0;
+
+                    currList=currList.parent
+                }
+                else {
+                    currList.list.push(t)
+                }
+            }
+
+            console.log(splitS)
+            console.log(listTreeToString(mainList))
+        }
+
+        function listTreeToString(listTree) {
+            return "(" + listTree.list.map((li)=>typeof li !=="object" ? li : listTreeToString(li)).join(" ") + ")"
+        } 
+
+        function parseList(l) {// if this adam token, then return and else if it is list, then retrun [car(exp),parselistofcdr(expr)]
+
+        }
+
+    </script>
+</head>
+
+<body>
+
+    <textarea id="prog">(mult 2 3)</textarea>
+    <button id="go" onClick="compile()">Go</button>
+
+    <script>
+        document.getElementById('go').focus()
+        compile()
+    </script>
+</body>
+
+</html>
+
