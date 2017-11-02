@@ -1,40 +1,112 @@
 <html>
 
 <head>
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+
     <script>
+
+        $(function () {
+            document.getElementById('go').focus()
+            compile()
+
+        })
+
         function compile() {
             console.log(document.getElementById("prog").value)
             let s = document.getElementById("prog").value
+
+            if (s.indexOf("\\") !== -1)
+                alert("WARNING: DON'T USE BACKSLASHES")
+
             let splitS = s.split(/\b/);
-            splitS = splitS.map((s) => s.trim())
+            splitS = splitS.map((s) => {
+                s = s.trim()
+
+                if (s.match(/\W+/)) {
+                    return s.split("")
+                }
+
+                return s;
+            })
+            splitS = _.flatten(splitS)
             splitS = splitS.filter((s) => s.trim())
-    
-                let mainList = { parent: null, list: [] }
-                let currList = mainList
-    
-                for (let i = 0; i < splitS.length; i++) {
+
+            let mainList = { parent: null, list: [] }
+            let currList = mainList
+            let mode = "PROGRAM"
+            let strBuf = ""
+
+            for (let i = 0; i < splitS.length; i++) {
                 let t = splitS[i]
+                if (mode === "PROGRAM") {
 
+                    if (t === "(") {
+                        let newList = { parent: currList, list: [] }
+                        currList.list.push(newList)
+                        currList = newList
+                    }
+                    else if (t === ")") {
+                        if (!currList.parent)
+                            return 0;
 
-                if (t == "(") {
-                    let newList = { parent: currList, list: [] }
-                    currList.list.push(newList)
-                    currList = newList
+                        currList = currList.parent
+                    } else if (t === '"') {
+                        mode = "STRING"
+                    }
+                    else {
+                        currList.list.push(t)
+                    }
                 }
-                else if (t == ")") {
-                    if (!currList.parent)
-                        return 0;
-
-                    currList = currList.parent
+                else if (mode === "STRING") {
+                    if (t === '"') {
+                        //end string mode
+                        currList.list.push('"' + strBuf + '"')
+                        strBuf = ""
+                        mode = "PROGRAM"
+                    }
+                    else {
+                        strBuf += t
+                    }
                 }
+
                 else {
-                    currList.list.push(t)
+                    console.error("invalid mode:", mode)
                 }
             }
 
             console.log(splitS)
             console.log(listTreeToStringTuples(mainList))
             // console.log(listTreeJustLists(mainList))
+
+            console.log("Output:\n", runListTree(mainList));
+        }
+
+        function runListTree(listTree) {
+            let fns = {
+                "add": (a, b) => { return parseFloat(a) + parseFloat(b) },
+                "mult": (a, b) => { return parseFloat(a) * parseFloat(b) },
+                "sub": (a, b) => { return parseFloat(a) - parseFloat(b) },
+                "div": (a, b) => { return parseFloat(a) / parseFloat(b) },
+                "concat": (a, b) => {
+                    if (!isStr(a) || !isStr(b)) {
+                        console.error("concat args must be quoted strs", a, b)
+                    }
+                    a=a.slice(1,-1)
+                    b=b.slice(1,-1)
+
+                    return '"'+a.concat(b)+'"'
+                }
+            }
+
+            let head = listTree.list[0]
+            let tail = listTree.list.slice(1)
+
+            if (head in fns) {
+                return fns[head](...tail)
+            }
         }
 
         function listTreeToString(listTree) {
@@ -49,26 +121,32 @@
             return listTree.list.map((li) => typeof li !== "object" ? li : listTreeJustLists(li))
         }
 
+        function isStr(expr) {
+            if (expr.charAt(0) === '"' && expr.charAt(expr.length - 1) === '"')
+                return true;
+            else
+                return false;
+        }
+
         function parseList(l) {// if this adam token, then return and else if it is list, then retrun [car(exp),parselistofcdr(expr)]
 
         }
     </script>
+
 </head>
 
 <body>
-
-    <textarea rows="20" cols="100" id="prog">
-(mult 
+    <!-- (mult 
     (add 2 3) 
-3)
-    
-        </textarea>
+3) -->
+    <textarea rows="20" cols="100" id="prog">
+add 3 4
+
+    </textarea>
     <button id="go" onClick="compile()">Go</button>
 
-    <script>
-            document.getElementById('go').focus()
-            compile()
-    </script>
+
+
 </body>
 
 </html>
