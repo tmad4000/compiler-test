@@ -13,6 +13,20 @@
 
         })
 
+        variableValues = new Map();
+
+        function getVariableValue(variableVame) {
+            return variableValues.get(variableVame);
+        }
+
+        function setVariableValue(variableName, value) {
+            variableValues.set(variableName, value);
+        }
+
+        function destroyVariableValue(variableName) {
+            variableValues.delete(variableName);
+        }
+
         function compile() {
             console.log(document.getElementById("prog").value)
             let s = document.getElementById("prog").value
@@ -105,7 +119,13 @@
                         b = b.slice(1, -1)
 
                         return '"' + a.concat(b) + '"'
-                    }
+                    },
+                    "lambda": (...args) => {
+                        let head = args[0];
+                        let tail = args.slice(1);
+
+                        return function (args) { a + b };
+                    } //return function() {return fns[fn](...args)}}
                 }
 
                 let head = listTree.list[0]
